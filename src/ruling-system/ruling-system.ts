@@ -1,22 +1,45 @@
-export type RuleCriteria = JoinCriteria[] | ValueCriteria[];
-export type JoinCriteria = AndCriteria | OrCriteria;
+import {REPOSITORY} from '../injection-tokens';
+import {Repository} from '../database/repository';
+import {EthereumTransaction, Rule} from '../models';
 
-export type AndCriteria = {
-    $and: JoinCriteria[] | ValueCriteria[];
+export class RulingSystem {
+    private readonly repository: Repository;
+    private activeRules?: Rule[];
+
+    constructor(opts: any) {
+        this.repository = opts[REPOSITORY];
+    }
+
+    async createRule(ruleToCreate: Rule) {
+        const rule = await this.repository.saveRule(ruleToCreate);
+        if (rule.active) {
+            this.activeRules?.push(rule);
+        }
+    }
+
+    async processTransactions(transactions: EthereumTransaction[]) {
+        const activeRules = await this.getActiveRules();
+
+        const transactionsToInsert: EthereumTransaction[] = [];
+        for (const transactionData of transactions as EthereumTransaction[]) {
+            for (const rule of activeRules) {
+                if (matchesSelectionCriteria(transactionData as any, rule.criteria, rule.criteria[0] as JoinCriteria)) {
+                    transactionsToInsert.push({...transactionData, RuleId: rule.id} as any);
+                }
+            }
+        }
+
+        const inserted = await this.repository.saveManyEthTransactions(transactionsToInsert);
+        return inserted;
+    }
+
+    private async getActiveRules() {
+        if (!this.activeRules) {
+            this.activeRules = await this.repository.getActiveRules();
+        }
+        return this.activeRules;
+    }
 }
-
-export type OrCriteria = {
-    $or: JoinCriteria[] | ValueCriteria[];
-}
-
-export type ValueCriteria = {
-    [key: string]: Comparison;
-}
-
-export type LessThan = { $lt: bigint };
-export type GreaterThan = { $gt: bigint };
-export type Equals = { $eq: bigint };
-export type Comparison = LessThan | GreaterThan | Equals;
 
 export function ruleCriteriaIsValid(criteriaList: RuleCriteria, treeLevel: number = 0): boolean {
     if (everyCriteriaIsValue(criteriaList) && treeLevel > 0) {
@@ -25,9 +48,9 @@ export function ruleCriteriaIsValid(criteriaList: RuleCriteria, treeLevel: numbe
 
     for (const criteria of criteriaList) {
         if (criteriaIsOr(criteria)) {
-            return ruleCriteriaIsValid(criteria.$or, treeLevel+1);
+            return ruleCriteriaIsValid(criteria.$or, treeLevel + 1);
         } else if (criteriaIsAnd(criteria)) {
-            return ruleCriteriaIsValid(criteria.$and, treeLevel+1);
+            return ruleCriteriaIsValid(criteria.$and, treeLevel + 1);
         }
     }
 
@@ -113,7 +136,7 @@ function comparisonIsEq(comparison: Comparison): comparison is GreaterThan {
     return (comparison as Equals).$eq != null;
 }
 
-function comparisonsMatch(row: Record<string, bigint|string>, criteria: ValueCriteria) {
+function comparisonsMatch(row: Record<string, bigint | string>, criteria: ValueCriteria) {
     let allComparisonsMatch = true;
 
     const properties = Object.keys(criteria);
@@ -133,3 +156,23 @@ function comparisonsMatch(row: Record<string, bigint|string>, criteria: ValueCri
 
     return allComparisonsMatch;
 }
+
+export type RuleCriteria = JoinCriteria[] | ValueCriteria[];
+export type JoinCriteria = AndCriteria | OrCriteria;
+
+export type AndCriteria = {
+    $and: JoinCriteria[] | ValueCriteria[];
+}
+
+export type OrCriteria = {
+    $or: JoinCriteria[] | ValueCriteria[];
+}
+
+export type ValueCriteria = {
+    [key: string]: Comparison;
+}
+
+export type LessThan = { $lt: bigint };
+export type GreaterThan = { $gt: bigint };
+export type Equals = { $eq: bigint };
+export type Comparison = LessThan | GreaterThan | Equals;

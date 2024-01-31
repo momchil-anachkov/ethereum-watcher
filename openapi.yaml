@@ -7,13 +7,44 @@ servers:
   - url: http://localhost:3000/
     description: dev server
 paths:
+  /rules:
+    post:
+      summary: Make a new watch rule
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - active
+                - criteria
+              properties:
+                active:
+                  type: boolean
+                  nullable: false
+                criteria:
+                  type: array
+                  minLength: 1
+                  nullable: false
+                  items:
+                    type: object
+                    nullable: false
+
+      responses:
+        default:
+          description: The new rule
+          content:
+            application/json:
+              schema:
+                type: object
   /:
     get:
       summary: Hello <Name>!
       parameters:
         - name: name
           in: query
-          required: false
+          required: true
           schema:
             type: string
       responses:
