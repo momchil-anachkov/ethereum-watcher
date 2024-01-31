@@ -7,7 +7,8 @@ api-key.txt
 # dependencies
 node_modules
 
-# Data dump files
+# Data files
+database.sqlite
 blocks.log
 heads.log
 transactions.log
