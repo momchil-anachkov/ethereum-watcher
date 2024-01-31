@@ -1,0 +1,13 @@
+# secrets
+api-key.txt
+
+# IDEs
+.idea
+
+# dependencies
+node_modules
+
+# Data dump files
+blocks.log
+heads.log
+transactions.log
