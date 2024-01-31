@@ -3,12 +3,21 @@ import fs from 'fs/promises';
 import { Web3 } from 'web3';
 import {setupModels, Transaction} from './models';
 import {setupDbConnection} from './database';
-import {loadConfig} from './config';
+import {loadConfig} from './config-loading';
 import {matchesSelectionCriteria, RuleCriteria} from './ruling-system';
+import {setupLogger} from './logger';
+import {setupServer} from './server';
 
 (async function main() {
-    const config = await loadConfig('./config-store.json');
-    const sequelize = await setupDbConnection(config.databasePath);
+    const logger = setupLogger();
+
+    const config = await loadConfig();
+
+
+    const server = await setupServer();
+    server.listen(config.http.port);
+
+    const sequelize = await setupDbConnection(config.database.databasePath);
     await setupModels(sequelize);
     const apiKey = await fs.readFile('api-key.txt');
 
@@ -27,7 +36,7 @@ import {matchesSelectionCriteria, RuleCriteria} from './ruling-system';
     const subscription = await web3.eth.subscribe("newHeads")
 
     subscription.on('data', async (blockHeader) => {
-        console.log('New Block: ', blockHeader.number)
+        logger.info(`New Block: ${blockHeader.number}`);
 
         const blockHeaderSerialized = JSON.stringify(blockHeader, null, 4);
         await headsLogFile.appendFile(blockHeaderSerialized + '\n');
@@ -46,7 +55,29 @@ import {matchesSelectionCriteria, RuleCriteria} from './ruling-system';
 
         const criteria: RuleCriteria = [{ $and: [{ value: { $gt: 0n } }] }]
 
-        // TODO: Load these from the database
+        // TODO: HTTP Server with CRUD for rules
+        // TODO: Load rules from the database
+        // TODO: Load rules on startup
+        // TODO: Parse blocks with delay
+        //       Save transactions to a pending table
+        //       On each new block, check the diff, and permanently save pending transactions that fulfill the delay
+        // TODO: Logging
+        // TODO: Transactions
+        // TODO: Error handling. We currently assume a happy-path everywhere.
+
+        // Lower Priority
+        // TODO: Dependency Injection
+        // TODO: More extensive tests for the rule system
+
+
+
+
+
+
+        // FIXME
+        //  for (const transaction of block.transactions) {
+        //  TypeError: Cannot read properties of null (reading 'transactions')
+        //      at EventEmitter.<anonymous> (/Users/anamodev/projects/homeworks/nexo/ethereum-watcher/main.ts:51:41)
         const filteredTransactions = (block.transactions as any[])
             .filter((transaction) => matchesSelectionCriteria(transaction, criteria, criteria[0]));
 

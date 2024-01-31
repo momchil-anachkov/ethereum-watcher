@@ -4,6 +4,7 @@ export async function setupDbConnection(databasePath: string): Promise<Sequelize
     const sequelize = new Sequelize({
         dialect: 'sqlite',
         storage: databasePath,
+        logging: false,
     });
 
     try {

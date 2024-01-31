@@ -1,0 +1,25 @@
+openapi: 3.0.0
+info:
+  title: Ethereum Watcher API
+  description: Create and Manage Logging Rules for the Ethereum blockchain
+  version: 0.1.9
+servers:
+  - url: http://localhost:3000/
+    description: dev server
+paths:
+  /:
+    get:
+      summary: Hello <Name>!
+      parameters:
+        - name: name
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        default:
+          description: A hello message
+          content:
+            text/plain:
+              schema:
+                type: string
