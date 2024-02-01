@@ -7,9 +7,77 @@ servers:
   - url: http://localhost:3000/
     description: dev server
 paths:
+  /rules/{id}:
+    get:
+      summary: Get a rule by id
+      parameters:
+        - name: id
+          required: true
+          schema:
+            type: integer
+          in: path
+      responses:
+        200:
+          description: The Rule
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rule'
+        default:
+          description: error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      summary: Delete a rule by id
+      parameters:
+        - name: id
+          required: true
+          schema:
+            type: integer
+          in: path
+      responses:
+        200:
+          description: Operation status
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - deletedCount
+                additionalProperties: false
+                properties:
+                  deletedCount:
+                    type: integer
+        default:
+          description: error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
   /rules:
+    get:
+      summary: Get a list of rules
+      parameters:
+        - name: active
+          required: false
+          schema:
+            type: boolean
+          in: query
+      responses:
+        default:
+          description: The list of rules
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Rule'
     post:
-      summary: Make a new watch rule
+      summary: make a new watch rule
       requestBody:
         content:
           application/json:
@@ -30,17 +98,51 @@ paths:
                   items:
                     type: object
                     nullable: false
-
+              example:
+                {
+                  active: true,
+                  criteria: [{ $and: [{ value: {$gt: 0} }, { gasPrice: {$gt: 0} }] }]
+                }
       responses:
         default:
-          description: The new rule
+          description: the new rule
           content:
             application/json:
               schema:
                 type: object
+
+  /transactions:
+    get:
+      summary: Get a list of transactions
+      parameters:
+        - name: ruleId
+          in: query
+          schema:
+            type: integer
+        - name: hash
+          in: query
+          schema:
+            type: string
+        - name: blockHash
+          in: query
+          schema:
+            type: string
+        - name: blockNumber
+          in: query
+          schema:
+            type: string
+      responses:
+        default:
+          description: The list of transactions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transaction'
   /:
     get:
-      summary: Hello <Name>!
+      summary: Hello <name>!
       parameters:
         - name: name
           in: query
@@ -49,8 +151,74 @@ paths:
             type: string
       responses:
         default:
-          description: A hello message
+          description: a hello message
           content:
             text/plain:
               schema:
                 type: string
+
+components:
+  schemas:
+    Error:
+      type: object
+      required:
+        - status
+      additionalProperties: false
+      properties:
+        status:
+          type: integer
+        message:
+          type: string
+    RuleCreationPayload:
+      type: object
+      additionalProperties: false
+      required:
+        - active
+        - criteria
+      properties:
+        active:
+          type: boolean
+          nullable: false
+        criteria:
+          type: array
+          minLength: 1
+          nullable: false
+          items:
+            type: object
+            nullable: false
+    Rule:
+      type: object
+      additionalProperties: true
+      required:
+        - id
+        - active
+        - criteria
+      properties:
+        id:
+          type: integer
+        active:
+          type: boolean
+        criteria:
+          type: array
+          items:
+            type: object
+
+    Transaction:
+      type: object
+      required:
+        - ruleId
+      additionalProperties: true
+      properties:
+        RuleId:
+          type: integer
+          nullable: false
+        value:
+          type: integer
+        gasPrice:
+          type: integer
+        hash:
+          type: string
+        blockHash:
+          type: string
+        blockNumber:
+          type: string

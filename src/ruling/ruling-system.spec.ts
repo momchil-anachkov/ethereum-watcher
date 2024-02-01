@@ -1,23 +1,23 @@
 import {expect} from 'chai';
-import {matchesSelectionCriteria, ruleCriteriaIsValid, RuleCriteria} from './ruling-system';
+import {objectMatchesSelectionCriteria, ruleCriteriaIsValid, RuleCriteria} from './ruling-system';
 
 describe('Transaction Filter Rule System', function () {
     it('does not get confused by 0', () => {
         const data = { value: 7n };
         const selectionCriteria: RuleCriteria = [ {$and: [{value: {$gt: 0n}}]} ];
-        expect(matchesSelectionCriteria(data, selectionCriteria, selectionCriteria[0])).to.equal(true);
+        expect(objectMatchesSelectionCriteria(data, selectionCriteria, selectionCriteria[0])).to.equal(true);
     });
 
     it('can filter on greater-than', () => {
         const data = { value: 7n };
         const selectionCriteria: RuleCriteria = [ {$and: [{value: {$gt: 6n}}]} ];
-        expect(matchesSelectionCriteria(data, selectionCriteria, selectionCriteria[0])).to.equal(true);
+        expect(objectMatchesSelectionCriteria(data, selectionCriteria, selectionCriteria[0])).to.equal(true);
     });
 
     it('can filter on less-than', () => {
         const data = { value: 7n };
         const selectionCriteria = [ {$and: [{value: {$lt: 8n}}]} ];
-        expect(matchesSelectionCriteria(data, selectionCriteria, selectionCriteria[0])).to.equal(true);
+        expect(objectMatchesSelectionCriteria(data, selectionCriteria, selectionCriteria[0])).to.equal(true);
     });
 });
 
