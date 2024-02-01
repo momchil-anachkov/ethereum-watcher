@@ -97,9 +97,6 @@ export async function setupModels(sequelize: Sequelize) {
         sequelize
     });
 
-    // We don't need this on the pending transactions. In fact it causes clashes with the other id column
-    // PendingEthereumTransaction.removeAttribute('id');
-
     PendingEthereumTransaction.belongsTo(Rule, { onDelete: 'CASCADE', foreignKey: { name:'ruleId', allowNull: false } });
     EthereumTransaction.belongsTo(Rule, { onDelete: 'CASCADE', foreignKey: { name:'ruleId', allowNull: false } });
 
