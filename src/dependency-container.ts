@@ -1,7 +1,7 @@
 import {asClass, asFunction, asValue, createContainer, InjectionMode, Lifetime } from 'awilix';
 
 import {setupLogger} from './logger';
-import {setupDbConnection} from './database/database';
+import {setupDbConnection} from './database/database-connection';
 import {loadConfig} from './config-loading';
 import {
     CONFIG,

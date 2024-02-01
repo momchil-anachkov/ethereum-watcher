@@ -29,10 +29,6 @@ export function setupServer(opts: any): Express {
     server.use('/api-docs', swaggerUi.serve);
     server.get('/api-docs', swaggerUi.setup(apiSpec));
 
-    server.get('/', (req, res) => {
-        res.send(`Hello, ${req.query.name ?? 'Sailor'}!`)
-    });
-
     server.get('/rules', async (req, res) => {
         try {
             const lookupFields: RuleLookupFields = req.query;
@@ -63,6 +59,20 @@ export function setupServer(opts: any): Express {
             res.json(createdRule);
         } catch (e) {
             res.status(401).json({status: 401, message: e.message});
+        }
+    });
+
+    server.patch('/rules/:id/', async (req, res) => {
+        try {
+            const id = parseInt(req.params.id);
+            const rule = await rulingService.setRuleActive(id, req.body.active);
+            if (!rule) {
+                res.status(404).json({status: 404, message: `No rule with id: ${id}`});
+            } else {
+                res.json(rule);
+            }
+        } catch (e) {
+            res.status(500).json({status: 401, message: e.message});
         }
     });
 

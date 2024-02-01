@@ -1,4 +1,4 @@
-import {DataRepository} from '../database/data-repository';
+import {DataRepository} from '../database/data.repository';
 import {REPOSITORY} from '../injection-tokens';
 import {EthereumTransaction, EthereumTransactionLookupFields} from '../models';
 

@@ -30,6 +30,40 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
+    patch:
+      summary: Set rule active
+      parameters:
+        - name: id
+          required: true
+          schema:
+            type: integer
+          in: path
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - active
+              additionalProperties: false
+              properties:
+                active:
+                  type: boolean
+                  nullable: false
+      responses:
+        200:
+          description: The updated rule
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rule'
+        default:
+          description: error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
     delete:
       summary: Delete a rule by id
       parameters:
@@ -82,27 +116,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              additionalProperties: false
-              required:
-                - active
-                - criteria
-              properties:
-                active:
-                  type: boolean
-                  nullable: false
-                criteria:
-                  type: array
-                  minLength: 1
-                  nullable: false
-                  items:
-                    type: object
-                    nullable: false
-              example:
-                {
-                  active: true,
-                  criteria: [{ $and: [{ value: {$gt: 0} }, { gasPrice: {$gt: 0} }] }]
-                }
+              $ref: '#/components/schemas/RuleCreationPayload'
       responses:
         default:
           description: the new rule
@@ -140,22 +154,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Transaction'
-  /:
-    get:
-      summary: Hello <name>!
-      parameters:
-        - name: name
-          in: query
-          required: true
-          schema:
-            type: string
-      responses:
-        default:
-          description: a hello message
-          content:
-            text/plain:
-              schema:
-                type: string
 
 components:
   schemas:
@@ -174,10 +172,14 @@ components:
       additionalProperties: false
       required:
         - active
+        - delay
         - criteria
       properties:
         active:
           type: boolean
+          nullable: false
+        delay:
+          type: number
           nullable: false
         criteria:
           type: array
@@ -186,18 +188,31 @@ components:
           items:
             type: object
             nullable: false
+      example:
+        {
+          active: true,
+          delay: 0,
+          criteria: [{ $and: [{ value: {$gt: 0} }, { gasPrice: {$gt: 0} }] }]
+        }
+
     Rule:
       type: object
       additionalProperties: true
       required:
         - id
         - active
+        - delay
         - criteria
       properties:
         id:
           type: integer
+          nullable: false
         active:
           type: boolean
+          nullable: false
+        delay:
+          type: integer
+          nullable: false
         criteria:
           type: array
           items:
@@ -221,4 +236,4 @@ components:
         blockHash:
           type: string
         blockNumber:
-          type: string
+          type: number

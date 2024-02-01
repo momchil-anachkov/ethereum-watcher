@@ -9,6 +9,8 @@ The goal is to monitor the Ethereum blockchain and log some stuff about it in a 
 - You can go to `localhost:3000/api-docs/` to explore what the API supports
 
 
+## TODO DEBUGGING
+
 
 ## Features
 - HTTP Server To Manage Watch Rules. `http://localhost:3000`

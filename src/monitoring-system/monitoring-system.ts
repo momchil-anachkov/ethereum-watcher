@@ -21,7 +21,7 @@ export class MonitoringSystem {
 
     async startMonitoring() {
         const currentBlockNumber = await this.web3.eth.getBlockNumber();
-        console.log('Latest Block: ', currentBlockNumber);
+        this.logger.info(`Latest Block: ${currentBlockNumber}`);
 
         const subscription = await this.web3.eth.subscribe("newHeads")
 
@@ -32,16 +32,14 @@ export class MonitoringSystem {
             const block = await this.web3.eth.getBlock(blockNumber, true);
 
             if (block?.transactions != null) {
-                const transactions = await this.rulingSystem.processTransactions(block.transactions as EthereumTransaction[]);
+                this.logger.info(`Block transaction count: ${block.transactions.length}`);
+                const result = await this.rulingSystem.processTransactions(block.number, block.transactions as EthereumTransaction[]);
+                this.logger.info(`Block: ${blockHeader.number} processed. Saved ${result.saved.length}. Saved for delayed processing: ${result.savedPending.length}`);
+            } else {
+                this.logger.warn('Block was null');
             }
 
-            // TODO: Load rules from the database
-            // TODO: Parse blocks with delay
-            //       Save transactions to a pending table
-            //       On each new block, check the diff, and permanently save pending transactions that fulfill the delay
-            // TODO: Logging
-            // TODO: Transactions
-            // TODO: Error handling. We currently assume a happy-path everywhere.
+            // TODO: Catch up on startup
         });
     }
 }
