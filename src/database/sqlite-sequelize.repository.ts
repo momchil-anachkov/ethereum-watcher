@@ -33,7 +33,6 @@ export class SQLiteSequelizeRepository extends DataRepository {
     }
 
     async deletePendingEthTransactions(ids: number[], databaseTransaction?: Transaction): Promise<number> {
-        // return await PendingEthereumTransaction.destroy({where: { blockDeadline: { [Op.in]: blockDeadline } }, transaction: databaseTransaction });
         return await PendingEthereumTransaction.destroy({where: { id: { [Op.in]: ids } }, transaction: databaseTransaction });
 
     }
