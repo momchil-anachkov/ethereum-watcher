@@ -38,6 +38,7 @@ export class MonitoringSystem {
             } else {
                 this.logger.warn('Block was null');
             }
+            this.logger.info('-------------------------------------');
         });
     }
 }

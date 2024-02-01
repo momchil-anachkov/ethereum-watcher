@@ -6,12 +6,18 @@ The goal is to monitor the Ethereum blockchain and log some stuff about it in a 
 - Put your Infura API key in `~/api-key.txt`
 - `npm install`
 - `npm start`
-- You can go to `localhost:3000/api-docs/` to explore what the API supports
+- Go to `localhost:3000/api-docs/` to explore what the API supports
+- Use the HTTP API to create some watch rules, which will start logging transactions that match them
 
 ## Debugging
 You can `npm start debug` and connect with your favorite Node debugger on port `9229`
 
 ## Features
+- Rule System that determines which transactions to log
+  - Watch rules are persisted across restarts. They are loaded from the DB on startup.
+  - Watch rules can be added/deleted or toggled active/inactive, and changes are effective immediately
+  - Transactions are linked to the rule that they matched to
+    - If a rule is deleted, all its transactions go along with it
 - HTTP Server To Manage Watch Rules. `http://localhost:3000`
   - Default port is `3000`, if that doesn't work for you, you can change it in `~/config.json`
   - OpenAPI Spec, detailing the API `openapi.yaml`
@@ -22,11 +28,6 @@ You can `npm start debug` and connect with your favorite Node debugger on port `
     - _NB: It has quite poor performance, and hangs when you query a lot of data_
 - Monitoring system that hooks into the ethereum blockchain via the Infura API and listens for new transactions
 - SQLite database where we log the transactions
-- Rule System that determines which transactions to log
-  - Watch rules are persisted across restarts. They are loaded from the DB on startup.
-  - Watch rules can be added/deleted or toggled active/inactive, and changes are effective immediately
-  - Transactions are linked to the rule that they matched to
-    - If a rule is deleted, all its transactions go along with it
     
 ## Tests
 There are some simple tests for the ruling system, to make sure it functions.
